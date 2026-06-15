@@ -1,0 +1,17 @@
+# ============================================
+# 开发环境配置模板
+# 复制为 application-dev.yml 并填入真实值
+# ============================================
+
+spring:
+  datasource:
+    username: root
+    password: your-database-password
+
+jwt:
+  secret: your-jwt-secret-key-at-least-32-chars
+
+aliyun:
+  oss:
+    access-key-id: your-oss-access-key-id
+    access-key-secret: your-oss-access-key-secret

@@ -1,0 +1,36 @@
+# IDE 配置
+.idea/
+.vscode/
+.claude/
+*.iml
+
+# Java 编译输出
+target/
+*.class
+
+# 日志
+logs/
+*.log
+
+# 前端依赖
+node_modules/
+dist/
+
+# 系统垃圾
+.DS_Store
+Thumbs.db
+
+# 敏感配置
+application-dev.yml
+.env
+
+# VS Code 扩展自动生成的 hooks（非项目文件）
+.github/modernize/
+
+# 编译输出加强
+**/target/
+
+作品材料/
+
+# 系统生成的二进制文档（如需版本控制请手动 git add -f）
+*.docx
