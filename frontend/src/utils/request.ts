@@ -8,6 +8,26 @@ const request: AxiosInstance = axios.create({
   timeout: 15000,
 })
 
+// Prevent multiple 401 error popups and redirects firing simultaneously
+let isHandling401 = false
+
+function handle401(message?: string) {
+  localStorage.removeItem('token')
+  localStorage.removeItem('user')
+
+  if (isHandling401) return
+  isHandling401 = true
+
+  ElMessage.error(message || '登录已过期，请重新登录')
+
+  // Use vue-router base path: /smartlearn/login
+  const currentPath = window.location.pathname
+  const loginPath = '/smartlearn/login'
+  if (currentPath !== loginPath && currentPath !== '/smartlearn/register') {
+    window.location.href = loginPath
+  }
+}
+
 request.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token')
@@ -29,9 +49,7 @@ request.interceptors.response.use(
     }
     const res = response.data
     if (res.code === 401) {
-      localStorage.removeItem('token')
-      localStorage.removeItem('user')
-      window.location.href = '/login'
+      handle401(res.message || '登录已过期')
       return Promise.reject(new Error(res.message || '登录已过期'))
     }
     if (res.code !== 200) {
@@ -44,15 +62,7 @@ request.interceptors.response.use(
     // Use backend error message when available
     const backendMsg = error.response?.data?.message
     if (error.response?.status === 401) {
-      const msg = backendMsg || '登录已过期，请重新登录'
-      localStorage.removeItem('token')
-      localStorage.removeItem('user')
-      ElMessage.error(msg)
-      // Don't redirect to /login if already on login/register page
-      const path = window.location.hash?.replace('#', '') || window.location.pathname
-      if (path !== '/login' && path !== '/register') {
-        window.location.href = '/login'
-      }
+      handle401(backendMsg || '登录已过期，请重新登录')
       return Promise.reject(error)
     }
     const msg = backendMsg || error.message || '网络错误，请确认后端服务已启动'

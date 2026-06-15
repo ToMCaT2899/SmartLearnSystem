@@ -293,11 +293,31 @@ function toggleFullscreen() {
 }
 
 onMounted(async () => {
-  if (userStore.isLoggedIn() && !userStore.userInfo) {
+  if (!userStore.isLoggedIn()) return
+
+  // Verify the stored token is not expired before making API calls
+  try {
+    const token = localStorage.getItem('token')
+    if (token) {
+      const payload = JSON.parse(atob(token.split('.')[1]))
+      if (Date.now() >= payload.exp * 1000) {
+        // Token already expired — don't bother fetching, just redirect
+        userStore.logout()
+        router.push('/login')
+        return
+      }
+    }
+  } catch {
+    userStore.logout()
+    router.push('/login')
+    return
+  }
+
+  if (!userStore.userInfo) {
     userStore.loadUserFromStorage()
     try {
       await userStore.fetchUserInfo()
-    } catch { /* token expired */ }
+    } catch { /* 401 handled by interceptor; will redirect to /login */ }
   }
 })
 </script>

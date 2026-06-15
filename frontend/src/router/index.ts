@@ -1,6 +1,24 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 
+/**
+ * Check whether a stored JWT token is still valid (not expired).
+ * Returns false if the token is missing, malformed, or expired.
+ */
+function isTokenValid(): boolean {
+  const token = localStorage.getItem('token')
+  if (!token) return false
+  try {
+    // JWT: header.payload.signature
+    const payload = JSON.parse(atob(token.split('.')[1]))
+    const exp = payload.exp * 1000 // JWT exp is in seconds
+    return Date.now() < exp
+  } catch {
+    // Token is malformed — treat as invalid
+    return false
+  }
+}
+
 const routes: RouteRecordRaw[] = [
   {
     path: '/login',
@@ -179,15 +197,18 @@ const router = createRouter({
 })
 
 router.beforeEach((to, _from, next) => {
-  const token = localStorage.getItem('token')
+  const authenticated = isTokenValid()
   if (to.meta.noAuth) {
-    if (token && (to.path === '/login' || to.path === '/register')) {
+    if (authenticated && (to.path === '/login' || to.path === '/register')) {
       next('/dashboard')
     } else {
       next()
     }
   } else {
-    if (!token) {
+    if (!authenticated) {
+      // Clear any stale data before redirecting
+      localStorage.removeItem('token')
+      localStorage.removeItem('user')
       next('/login')
     } else {
       next()

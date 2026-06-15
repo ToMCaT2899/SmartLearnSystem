@@ -231,8 +231,11 @@ async function fetchDashboard() {
     } else {
       refreshCharts()
     }
-  } catch {
-    ElMessage.error('获取仪表盘数据失败')
+  } catch (err: any) {
+    // 401 is already handled by the axios interceptor — don't duplicate the error popup
+    if (err?.response?.status !== 401) {
+      ElMessage.error('获取仪表盘数据失败')
+    }
   } finally {
     loading.value = false
   }
