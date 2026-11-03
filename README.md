@@ -133,9 +133,6 @@ npm run dev   # 或 pnpm dev
 - `jwt.secret` — JWT 签名密钥（至少 32 字符）
 - `aliyun.oss.access-key-id` / `access-key-secret` — 阿里云 OSS 凭证（如需文件上传功能）
 
-## 线上演示
-
-访问地址：[https://yjhy56.cn/smartlearn](https://yjhy56.cn/smartlearn)
 
 ## License
 
